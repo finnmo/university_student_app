@@ -1,7 +1,9 @@
-import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 import 'package:namer_app/screens/home/home.dart';
 import 'package:provider/provider.dart';
+
+import 'bloc/page_controller_provider.dart';
+import 'constants.dart';
 
 void main() {
   runApp(MyApp());
@@ -13,12 +15,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => MyAppState(),
+      create: (context) => PageControllerProvider(),
       child: MaterialApp(
         title: 'Namer App',
         theme: ThemeData(
           useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
+          colorScheme: lightThemeColors(context),
         ),
         home: MyHomePage(),
       ),
@@ -26,25 +28,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyAppState extends ChangeNotifier {
-  var current = WordPair.random();
-
-  void getNext(){
-    current = WordPair.random();
-    notifyListeners();
-  }
-
-  List<WordPair> favorites = <WordPair>[];
-
-  void toggleFavorite(){
-    if(favorites.contains(current)){
-      favorites.remove(current);
-    }else{
-      favorites.add(current);
-    }
-    notifyListeners();
-  }
 
 
-}
 

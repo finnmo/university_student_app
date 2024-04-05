@@ -1,177 +1,303 @@
-
-import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
-import 'package:namer_app/constants.dart';
 import 'package:provider/provider.dart';
 
-import '../../main.dart';
+import '../../bloc/page_controller_provider.dart';
+import '../assesments/assesments.dart';
+import '../map/map.dart';
+import '../settings/settings.dart';
 import '../timetable/timetable.dart';
+import 'package:flutter/cupertino.dart'; // Import Cupertino icons
+
 
 class MyHomePage extends StatefulWidget {
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class BigCard extends StatelessWidget {
-  const BigCard({
+class SmallCard extends StatelessWidget {
+  const SmallCard({
     super.key,
-    required this.pair,
+    required this.title, 
+    required this.icon,
+    required this.color,
+    required this.index,
   });
 
-  final WordPair pair;
+  final String title;
+  final Icon icon;
+  final Color color;
+  final int index;
+
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final pageControllerProvider = Provider.of<PageControllerProvider>(context);
 
-    final style = theme.textTheme.displayMedium!.copyWith(
-      color: theme.colorScheme.onPrimary,
-
+    final textStyle = Theme.of(context).textTheme.displaySmall!.copyWith(
+      color: Colors.black,
+      fontSize: 25,
     );
 
-    return Card(
-      color: theme.colorScheme.primary,
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Text(pair.asLowerCase, style: style, semanticsLabel: "${pair.first} ${pair.second}"),
+    return 
+    GestureDetector(
+      onTap: () {
+        pageControllerProvider.navigateToPage(index); // Navigate to the corresponding page
+      },
+      child:
+      Card(
+      color: color,
+      margin: EdgeInsets.all(8),
+      child: 
+      Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 0.0),
+            child: Icon(
+              icon.icon,
+              size: 70
+              ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 0.0),
+            child: Text(title, style: textStyle),
+          ),
+        ],
       ),
+      )
+    );
+  }
+}
+
+class BigCard extends StatelessWidget {
+  const BigCard({
+    super.key,
+    required this.title, 
+    required this.icon,
+    required this.color,
+    required this.index,
+  });
+
+  final String title;
+  final Icon icon;
+  final Color color;
+  final int index;
+
+
+  @override
+  Widget build(BuildContext context) {
+    final pageControllerProvider = Provider.of<PageControllerProvider>(context);
+
+    final theme = Theme.of(context);
+
+    final textStyle = theme.textTheme.displayMedium!.copyWith(
+      color: Colors.black,
+      
+    );
+
+    return 
+        GestureDetector(
+      onTap: () {
+        pageControllerProvider.navigateToPage(index); // Navigate to the corresponding page
+      },
+      child:
+    Card(
+      color: color,
+      margin: EdgeInsets.all(8),
+      child: 
+      Row(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 20.0),
+            child: Icon(
+              icon.icon,
+              size: 70
+              ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Text(title, style: textStyle),
+          ),
+        ],
+      ),
+    )
     );
   }
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  var selectedIndex = 0;
+  int _selectedIndex = 0;
+  bool _enableSwiping = true; // Add this variable
 
-  void _onItemTapped(int index) {
-    setState(() {
-      selectedIndex = index;
-    });
-  }
-  
+final List<Widget> _pages = [
+    HomePage(),
+    MapPage(),
+    TimetablePage(),
+    AssesmentsPage(),
+    SettingsPage(),
+  ];
+
   @override
   Widget build(BuildContext context) {
-    Widget page;
-    switch (selectedIndex){
-      case 0: 
-        page = GeneratorPage();
-        break;
-      case 1: 
-        page = FavoritesPage() as Widget;
-        break;
-      case 2: 
-        page = FavoritesPage() as Widget;
-        break;
-      case 3: 
-        page = FavoritesPage() as Widget;
-        break;
-      case 4: 
-        page = FavoritesPage() as Widget;
-        break;
-      default: 
-        throw UnimplementedError('No widget for $selectedIndex');
-    }
+      PageControllerProvider pageControllerProvider = Provider.of<PageControllerProvider>(context);
+
     return LayoutBuilder(
       builder: (context, constraints) {
         return 
         Scaffold(
-        body: Row(
-          children: [
-          Expanded(
-                child: Container(
-                  color: Theme.of(context).colorScheme.primaryContainer,
-                  child: page,
-                ),
+          
+          body: 
+          Stack(
+            children: [
+                PageView.builder(
+                controller: pageControllerProvider.pageController,
+                physics: _enableSwiping
+                    ? AlwaysScrollableScrollPhysics()
+                    : NeverScrollableScrollPhysics(), // Control swiping here
+
+                onPageChanged: (int page) {
+                  setState(() {
+                    _selectedIndex = page;
+                    _enableSwiping = _selectedIndex != 1;
+                  });
+                },
+                itemCount: _pages.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return _pages[index % _pages.length];
+                },
               ),
-          ],
+              ],
+          ),
+          
+          bottomNavigationBar: 
+          Container(
+        decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border(top: BorderSide(color: Theme.of(context).colorScheme.onBackground, width: 1.0))),
+        child:
+          BottomNavigationBar(
+            type: BottomNavigationBarType.fixed,
+            items: <BottomNavigationBarItem>[
+              BottomNavigationBarItem(
+                icon: Icon(CupertinoIcons.home),
+                activeIcon: Icon(CupertinoIcons.home),
+                label: 'Home',
+                backgroundColor: Theme.of(context).colorScheme.onSecondary,
+                tooltip: '',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(CupertinoIcons.map),
+                activeIcon: Icon(CupertinoIcons.map_fill),
+                label: 'Map',
+                backgroundColor: Theme.of(context).colorScheme.onSecondary,
+                tooltip: '',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(CupertinoIcons.calendar),
+                activeIcon: Icon(CupertinoIcons.calendar),
+                label: 'Timetable',
+                backgroundColor: Theme.of(context).colorScheme.onSecondary,
+                tooltip: '',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.assessment_outlined),
+                activeIcon: Icon(Icons.assessment),
+                label: 'Assessments',
+                backgroundColor: Theme.of(context).colorScheme.onSecondary,
+                tooltip: '',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(CupertinoIcons.settings),
+                activeIcon: Icon(CupertinoIcons.settings_solid),
+                label: 'Settings',
+                backgroundColor: Theme.of(context).colorScheme.onSecondary,
+              ),
+            ],
+            currentIndex: _selectedIndex,
+            unselectedItemColor: Theme.of(context).colorScheme.onPrimary,
+            selectedItemColor: Theme.of(context).colorScheme.primary,
+            onTap: (page) {
+                setState(() {
+                  _selectedIndex = page;
+                });
+                pageControllerProvider.pageController.jumpToPage(page);
+              },
+            showSelectedLabels: true,
+            showUnselectedLabels: true,
+            iconSize: 30,
+
+          ),
         ),
-        bottomNavigationBar: BottomNavigationBar(
-          type: BottomNavigationBarType.fixed,
-          items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined),
-              activeIcon: Icon(Icons.home),
-              label: 'Home',
-              backgroundColor: Colors.white,
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.map_outlined),
-              activeIcon: Icon(Icons.map),
-              label: 'Map',
-              backgroundColor: Colors.white,
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.calendar_month_outlined),
-              activeIcon: Icon(Icons.calendar_month),
-              label: 'Timetable',
-              backgroundColor: Colors.white,
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.assessment_outlined),
-              activeIcon: Icon(Icons.assessment),
-              label: 'Assessments',
-              backgroundColor: Colors.white,
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.settings_outlined),
-              activeIcon: Icon(Icons.settings),
-              label: 'Settings',
-              backgroundColor: Colors.white,
-            ),
-          ],
-          currentIndex: selectedIndex,
-          unselectedItemColor: Colors.grey,
-          selectedItemColor: colourPrimary,
-          onTap: _onItemTapped,
-          showSelectedLabels: false,
-          showUnselectedLabels: false,
-          iconSize: 35,
-        ),
-      );
+        );
       }
     );
   }
 }
 
-class GeneratorPage extends StatelessWidget {
+class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
-    var pair = appState.current;
 
-    IconData icon;
-    if (appState.favorites.contains(pair)) {
-      icon = Icons.favorite;
-    } else {
-      icon = Icons.favorite_border;
-    }
-
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+    return Scaffold(
+      appBar: AppBar(
+            elevation: 0,
+            toolbarHeight: 10,
+            backgroundColor: Theme.of(context).colorScheme.background,
+          ),
+          body:
+    
+    Center(
+      
+      child: 
+      Padding(
+        padding: const EdgeInsets.all(15.0),
+        child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          BigCard(pair: pair),
-          SizedBox(height: 10),
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ElevatedButton.icon(
-                onPressed: () {
-                  appState.toggleFavorite();
-                },
-                icon: Icon(icon),
-                label: Text('Like'),
+              Expanded(
+                child: BigCard(title: "Timetable", icon: Icon(CupertinoIcons.calendar), color: Theme.of(context).colorScheme.primary, index: 2),
+              )
+            ],
+          ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Expanded(
+                child: SmallCard(title: "Assesments", icon: Icon(CupertinoIcons.book), color: Theme.of(context).colorScheme.surface, index: 3),
               ),
-              SizedBox(width: 10),
-              ElevatedButton(
-                onPressed: () {
-                  appState.getNext();
-                },
-                child: Text('Next'),
-              ),
+              Expanded(
+                child: SmallCard(title: "Progress", icon: Icon(CupertinoIcons.chart_bar), color: Theme.of(context).colorScheme.surface, index: 4),
+              ),              
+            ],
+          ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Expanded(
+                child:
+                  BigCard(title: "Map", icon: Icon(CupertinoIcons.map), color: Theme.of(context).colorScheme.surface, index: 1),
+              )
+            ],
+          ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Expanded(
+                child:
+                  BigCard(title: "", icon: Icon(null), color: Theme.of(context).colorScheme.surface, index: 0),
+              )
             ],
           ),
         ],
       ),
+    ),
+    ),
     );
   }
 }
