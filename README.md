@@ -1,16 +1,13 @@
-# curtin_student_app
+# University Student App
 
-A new Flutter project.
+A front-end design of a central application for a univeristy student 
 
-## Getting Started
+## Preview
+Main Screen:
+![alt text](https://github.com/finnmo/university_student_app/blob/main/Picture%203.png?raw=true)
+
+Assesments:
+![alt text](https://github.com/finnmo/university_student_app/blob/main/Picture%204.png?raw=true)
 
 This project is a starting point for a Flutter application.
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
